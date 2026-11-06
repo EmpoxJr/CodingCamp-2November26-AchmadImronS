@@ -1,0 +1,474 @@
+/* To-Do List Life Dashboard — Styles */
+/* Populated in task 8.1 (responsive layout) and 8.2 (visual design) */
+
+/* ── Theme tokens (task 12.2) ────────────────────────────────────────────── */
+
+/*
+ * Light theme (default). All colour values in this file are referenced via
+ * these custom properties so that switching [data-theme="dark"] on <html>
+ * instantly repaints every element without touching any other rules.
+ */
+:root,
+[data-theme="light"] {
+  /* Page background */
+  --color-bg:               #f0f2f5;
+
+  /* Widget card surface */
+  --color-surface:          #ffffff;
+
+  /* Alternate / slightly-off surface (secondary buttons, dividers) */
+  --color-surface-alt:      #ecf0f1;
+  --color-surface-alt-hover:#dde1e4;
+
+  /* Body text */
+  --color-text:             #1a1a2e;
+
+  /* Secondary headings, timer display, secondary button text */
+  --color-text-secondary:   #2c3e50;
+
+  /* Subtle text (greeting time large clock) */
+  --color-text-muted:       #34495e;
+
+  /* De-emphasized text (date, placeholder borders) */
+  --color-text-dim:         #7f8c8d;
+
+  /* Primary action colour (buttons, focus rings, links) */
+  --color-primary:          #3498db;
+  --color-primary-hover:    #2980b9;
+  --color-primary-ring:     rgba(52, 152, 219, 0.2);
+
+  /* Link text */
+  --color-link:             #2980b9;
+  --color-link-hover:       #1a6fa3;
+
+  /* Success / end-of-timer message */
+  --color-success:          #27ae60;
+
+  /* Validation error */
+  --color-error:            #c0392b;
+
+  /* Form input */
+  --color-input-bg:         #fafafa;
+  --color-border:           #bdc3c7;
+  --color-border-muted:     #7f8c8d;
+
+  /* Card shadow */
+  --color-shadow:           rgba(0, 0, 0, 0.08);
+}
+
+/*
+ * Dark theme. Applied when <html data-theme="dark"> is set by ThemeWidget.
+ * Only tokens that differ from the light theme need to be listed here, but
+ * listing all of them keeps the block self-contained and easy to maintain.
+ */
+[data-theme="dark"] {
+  --color-bg:               #1a1a2e;
+  --color-surface:          #2c3e50;
+  --color-surface-alt:      #34495e;
+  --color-surface-alt-hover:#3d566e;
+  --color-text:             #ecf0f1;
+  --color-text-secondary:   #bdc3c7;
+  --color-text-muted:       #95a5a6;
+  --color-text-dim:         #7f8c8d;
+  --color-primary:          #5dade2;
+  --color-primary-hover:    #3498db;
+  --color-primary-ring:     rgba(93, 173, 226, 0.3);
+  --color-link:             #5dade2;
+  --color-link-hover:       #85c1e9;
+  --color-success:          #2ecc71;
+  --color-error:            #e74c3c;
+  --color-input-bg:         #1e2d3d;
+  --color-border:           #4a6278;
+  --color-border-muted:     #5d7a8a;
+  --color-shadow:           rgba(0, 0, 0, 0.35);
+}
+
+/* ── Base / Reset ────────────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Responsive Layout (task 8.1) ────────────────────────────────────────── */
+
+/*
+ * Mobile-first: single-column stacked layout.
+ * All four widgets stack vertically by default (req 9.6).
+ */
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.widget {
+  width: 100%;
+}
+
+/*
+ * Two-column layout at viewport ≥ 768 px (req 9.5).
+ *
+ * Column 1: #greeting-widget  +  #timer-widget
+ * Column 2: #todo-widget      +  #links-widget
+ *
+ * Strategy: switch .dashboard to a CSS Grid with two equal columns and
+ * four rows. Each widget is explicitly placed in its grid cell so the
+ * layout is deterministic regardless of DOM order.
+ */
+@media (min-width: 768px) {
+  .dashboard {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 1rem;
+    align-items: start;
+  }
+
+  /* Column 1, Row 1 */
+  #greeting-widget {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  /* Column 1, Row 2 */
+  #timer-widget {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  /* Column 2, Row 1 */
+  #todo-widget {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  /* Column 2, Row 2 */
+  #links-widget {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+/* ── Edit-mode styles (task 6.2) ─────────────────────────────────────────── */
+
+/* Inline edit input inside a task row */
+.todo-edit-input {
+  flex: 1;
+  font: inherit;
+  padding: 2px 6px;
+  border: 1px solid var(--color-border-muted);
+  border-radius: 3px;
+}
+
+.todo-edit-input[aria-invalid="true"] {
+  border-color: var(--color-error);
+  outline-color: var(--color-error);
+}
+
+/* Inline error message shown inside the task row during edit */
+.todo-edit-error {
+  font-size: 0.8em;
+  color: var(--color-error);
+  margin-left: 4px;
+}
+
+/* Save / Cancel buttons */
+.todo-save-edit-btn,
+.todo-cancel-edit-btn {
+  font: inherit;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+/* ── Visual Design (task 8.2) ────────────────────────────────────────────── */
+
+/* Typography — system font stack, comfortable line-height */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+/* Heading size hierarchy */
+h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 0.35rem;
+}
+
+h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+/* ── Widget cards ───────────────────────────────────────────────────────── */
+
+.widget {
+  background: var(--color-surface);
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px var(--color-shadow);
+}
+
+/* ── Greeting widget ────────────────────────────────────────────────────── */
+
+#greeting-message {
+  color: var(--color-text-secondary);
+}
+
+#greeting-time {
+  display: block;
+  font-size: 2.25rem;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  margin: 0.25rem 0;
+}
+
+#greeting-date {
+  font-size: 0.9rem;
+  color: var(--color-text-dim);
+  margin-top: 0.15rem;
+}
+
+/* ── Timer widget ────────────────────────────────────────────────────────── */
+
+#timer-display {
+  font-size: 4rem;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin: 0.5rem 0 0.75rem;
+}
+
+#timer-end-message {
+  text-align: center;
+  font-size: 0.95rem;
+  color: var(--color-success);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.timer-controls {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+/* ── Form inputs ─────────────────────────────────────────────────────────── */
+
+input[type="text"] {
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 0.925rem;
+  color: var(--color-text);
+  background: var(--color-input-bg);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-ring);
+  background: var(--color-surface);
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+
+button {
+  padding: 0.45rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.925rem;
+  font-weight: 500;
+  transition: background-color 0.15s, opacity 0.15s;
+}
+
+/* Primary action buttons (add items, start timer) */
+#todo-add-btn,
+#link-add-btn,
+#timer-start {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+#todo-add-btn:hover,
+#link-add-btn:hover,
+#timer-start:hover {
+  background-color: var(--color-primary-hover);
+}
+
+/* Secondary / neutral buttons */
+#timer-stop,
+#timer-reset {
+  background-color: var(--color-surface-alt);
+  color: var(--color-text-secondary);
+}
+
+#timer-stop:hover,
+#timer-reset:hover {
+  background-color: var(--color-surface-alt-hover);
+}
+
+/* Per-task action buttons rendered by JS */
+.todo-complete-btn,
+.todo-edit-btn,
+.todo-delete-btn,
+.link-delete-btn {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.825rem;
+  border-radius: 4px;
+  background-color: var(--color-surface-alt);
+  color: var(--color-text-secondary);
+}
+
+.todo-complete-btn:hover,
+.todo-edit-btn:hover,
+.todo-delete-btn:hover,
+.link-delete-btn:hover {
+  background-color: var(--color-surface-alt-hover);
+}
+
+/* ── To-Do form layout ───────────────────────────────────────────────────── */
+
+.todo-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.todo-form input[type="text"] {
+  flex: 1;
+}
+
+.todo-form button {
+  flex-shrink: 0;
+}
+
+/* ── To-Do list ──────────────────────────────────────────────────────────── */
+
+#todo-list {
+  list-style: none;
+  margin-top: 0.5rem;
+}
+
+#todo-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--color-surface-alt);
+  font-size: 0.95rem;
+}
+
+/* Description span grows to fill available row space */
+#todo-list li .todo-desc {
+  flex: 1;
+  word-break: break-word;
+}
+
+#todo-list li:last-child {
+  border-bottom: none;
+}
+
+/* Req 5.2: completed tasks visually distinguished with strikethrough */
+#todo-list li.complete {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+/* Error messages */
+#todo-input-error,
+#link-form-error {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-error);
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+/* ── Quick Links form layout ─────────────────────────────────────────────── */
+
+.links-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.links-form input[type="text"] {
+  flex: 1 1 120px;
+}
+
+.links-form button {
+  flex-shrink: 0;
+}
+
+/* ── Quick Links list ────────────────────────────────────────────────────── */
+
+#links-list {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+/* Each link row rendered by JS */
+#links-list .link-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--color-surface-alt);
+}
+
+#links-list .link-item:last-child {
+  border-bottom: none;
+}
+
+#links-list a {
+  color: var(--color-link);
+  text-decoration: none;
+  font-size: 0.95rem;
+  flex: 1;
+  word-break: break-all;
+}
+
+#links-list a:hover {
+  text-decoration: underline;
+  color: var(--color-link-hover);
+}
+
+/* ── Accessibility helper ────────────────────────────────────────────────── */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

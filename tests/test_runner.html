@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Test Runner</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+           background: #f4f6f9; color: #1a1a2e; padding: 1.5rem; }
+    h1 { font-size: 1.4rem; margin-bottom: 1rem; color: #2c3e50; }
+    #summary { font-weight: 600; font-size: 1rem; margin-bottom: 1.25rem;
+                padding: 0.75rem 1rem; border-radius: 8px; }
+    #summary.pass { background: #d4edda; color: #155724; }
+    #summary.fail { background: #f8d7da; color: #721c24; }
+    #summary.running { background: #fff3cd; color: #856404; }
+    .suite { background: #fff; border-radius: 10px; box-shadow: 0 1px 6px rgba(0,0,0,.08);
+              margin-bottom: 1rem; overflow: hidden; }
+    .suite-header { padding: 0.75rem 1rem; font-weight: 600; font-size: 0.95rem;
+                     display: flex; justify-content: space-between; align-items: center;
+                     background: #f8f9fa; border-bottom: 1px solid #e9ecef; }
+    .suite-header span { font-size: 0.8rem; font-weight: 400; color: #6c757d; }
+    .test-row { padding: 0.45rem 1rem; font-size: 0.875rem; border-bottom: 1px solid #f0f2f5;
+                 display: flex; align-items: flex-start; gap: 0.5rem; }
+    .test-row:last-child { border-bottom: none; }
+    .test-row.pass  { background: #f6fff8; }
+    .test-row.fail  { background: #fff5f5; }
+    .icon { flex-shrink: 0; font-size: 0.85rem; }
+    .icon.pass { color: #28a745; }
+    .icon.fail { color: #dc3545; }
+    .error-msg { font-size: 0.8rem; color: #dc3545; margin-top: 0.2rem; font-family: monospace; }
+
+    /* Hidden DOM fixture area — widgets read this during init() */
+    #fixture { display: none; }
+  </style>
+</head>
+<body>
+
+<h1>To-Do List Life Dashboard — Test Runner</h1>
+<div id="summary" class="running">⏳ Running tests…</div>
+<div id="results"></div>
+
+<!-- ── Hidden DOM fixture used by tests that call widget methods ─────────── -->
+<div id="fixture">
+  <h1 id="greeting-message"></h1>
+  <time id="greeting-time"></time>
+  <p id="greeting-date"></p>
+  <div id="timer-display">25:00</div>
+  <p id="timer-end-message" hidden></p>
+  <button id="timer-start"></button>
+  <button id="timer-stop"></button>
+  <button id="timer-reset"></button>
+  <input type="text" id="todo-input" />
+  <button id="todo-add-btn"></button>
+  <span id="todo-input-error" hidden></span>
+  <ul id="todo-list"></ul>
+  <input type="text" id="link-label-input" />
+  <input type="text" id="link-url-input" />
+  <button id="link-add-btn"></button>
+  <span id="link-form-error" hidden></span>
+  <div id="links-list"></div>
+</div>
+
+<!-- Load the application under test -->
+<script src="../js/app.js"></script>
+
+<!-- ── Micro test framework ──────────────────────────────────────────────── -->
+<script>
+'use strict';
+
+const Runner = {
+  _suites:  [],
+  _current: null,
+
+  describe(name, fn) {
+    this._current = { name, tests: [] };
+    this._suites.push(this._current);
+    fn();
+    this._current = null;
+  },
+
+  it(desc, fn) {
+    if (!this._current) throw new Error('it() called outside describe()');
+    this._current.tests.push({ desc, fn });
+  },
+
+  expect(actual) {
+    return {
+      toBe(expected) {
+        if (actual !== expected)
+          throw new Error(`Expected ${JSON.stringify(expected)} but got ${JSON.stringify(actual)}`);
+      },
+      toEqual(expected) {
+        const a = JSON.stringify(actual), b = JSON.stringify(expected);
+        if (a !== b) throw new Error(`Expected ${b} but got ${a}`);
+      },
+      toBeTruthy() {
+        if (!actual) throw new Error(`Expected truthy, got ${JSON.stringify(actual)}`);
+      },
+      toBeFalsy() {
+        if (actual) throw new Error(`Expected falsy, got ${JSON.stringify(actual)}`);
+      },
+      toBeNull() {
+        if (actual !== null) throw new Error(`Expected null, got ${JSON.stringify(actual)}`);
+      },
+      not: {
+        toBeNull() {
+          if (actual === null) throw new Error('Expected non-null value');
+        },
+        toThrow() {
+          throw new Error('.not.toThrow not implemented in this runner');
+        },
+      },
+      toHaveLength(n) {
+        if (actual == null || actual.length !== n)
+          throw new Error(`Expected length ${n}, got ${actual == null ? 'null/undefined' : actual.length}`);
+      },
+      toContain(str) {
+        if (!String(actual).includes(String(str)))
+          throw new Error(`Expected "${actual}" to contain "${str}"`);
+      },
+      toMatch(regex) {
+        if (!regex.test(actual))
+          throw new Error(`Expected "${actual}" to match ${regex}`);
+      },
+      toBeGreaterThan(n) {
+        if (actual <= n) throw new Error(`Expected ${actual} > ${n}`);
+      },
+      toBeLessThanOrEqual(n) {
+        if (actual > n) throw new Error(`Expected ${actual} <= ${n}`);
+      },
+    };
+  },
+
+  run() {
+    const resultsEl = document.getElementById('results');
+    const summaryEl = document.getElementById('summary');
+    let totalPass = 0, totalFail = 0;
+
+    this._suites.forEach(suite => {
+      const suiteEl = document.createElement('div');
+      suiteEl.className = 'suite';
+
+      const header = document.createElement('div');
+      header.className = 'suite-header';
+      header.innerHTML = `<strong>${suite.name}</strong> <span></span>`;
+      suiteEl.appendChild(header);
+
+      let suitePass = 0, suiteFail = 0;
+
+      suite.tests.forEach(({ desc, fn }) => {
+        // Reset widget state before each test
+        localStorage.clear();
+        TodoListWidget._tasks  = [];
+        QuickLinksWidget._links = [];
+        // Re-wire DOM refs each time (DOM may be stale after widget._render())
+        TodoListWidget._inputEl      = document.getElementById('todo-input');
+        TodoListWidget._addBtnEl     = document.getElementById('todo-add-btn');
+        TodoListWidget._inputErrorEl = document.getElementById('todo-input-error');
+        TodoListWidget._listEl       = document.getElementById('todo-list');
+        QuickLinksWidget._labelInputEl = document.getElementById('link-label-input');
+        QuickLinksWidget._urlInputEl   = document.getElementById('link-url-input');
+        QuickLinksWidget._addBtnEl     = document.getElementById('link-add-btn');
+        QuickLinksWidget._formErrorEl  = document.getElementById('link-form-error');
+        QuickLinksWidget._listEl       = document.getElementById('links-list');
+        FocusTimerWidget._displayEl    = document.getElementById('timer-display');
+        FocusTimerWidget._endMessageEl = document.getElementById('timer-end-message');
+
+        let passed = true, errMsg = '';
+        try { fn(); } catch (e) { passed = false; errMsg = e.message; }
+
+        if (passed) { suitePass++; totalPass++; } else { suiteFail++; totalFail++; }
+
+        const row = document.createElement('div');
+        row.className = `test-row ${passed ? 'pass' : 'fail'}`;
+        row.innerHTML = `
+          <span class="icon ${passed ? 'pass' : 'fail'}">${passed ? '✓' : '✗'}</span>
+          <div>
+            ${desc}
+            ${passed ? '' : `<div class="error-msg">${errMsg}</div>`}
+          </div>`;
+        suiteEl.appendChild(row);
+      });
+
+      header.querySelector('span').textContent =
+        `${suitePass} passed${suiteFail > 0 ? `, ${suiteFail} failed` : ''}`;
+      resultsEl.appendChild(suiteEl);
+    });
+
+    const allPassed = totalFail === 0;
+    summaryEl.className = allPassed ? 'pass' : 'fail';
+    summaryEl.textContent =
+      allPassed
+        ? `✅ All ${totalPass} tests passed`
+        : `❌ ${totalFail} failed, ${totalPass} passed (${totalPass + totalFail} total)`;
+  },
+};
+
+// Short aliases
+const { describe, it, expect } = Runner;
+
+// ── Bind to runner (call each as method to preserve `this`) ─────────────────
+const _describe = (n, fn) => Runner.describe(n, fn);
+const _it       = (d, fn) => Runner.it(d, fn);
+const _expect   = (v)     => Runner.expect(v);
+</script>
+
+<!-- ── Test Definitions ──────────────────────────────────────────────────── -->
+<script>
+'use strict';
+
+// ── 1. StorageUtil ────────────────────────────────────────────────────────────
+_describe('StorageUtil — round-trip and error handling', () => {
+  _it('save + load round-trip preserves data', () => {
+    const data = [{ id: 'a', description: 'hello', complete: false }];
+    const ok = StorageUtil.save('test-rt', data);
+    _expect(ok).toBe(true);
+    _expect(StorageUtil.load('test-rt')).toEqual(data);
+  });
+
+  _it('load returns null for missing key', () => {
+    _expect(StorageUtil.load('__no_such_key__')).toBeNull();
+  });
+
+  _it('load returns null for malformed JSON', () => {
+    localStorage.setItem('bad', '{broken}');
+    _expect(StorageUtil.load('bad')).toBeNull();
+  });
+
+  _it('Task serialization round-trip preserves id, description, complete', () => {
+    const tasks = [
+      { id: 'id1', description: 'Buy milk', complete: false },
+      { id: 'id2', description: 'Write code', complete: true  },
+    ];
+    StorageUtil.save('tasks-rt', tasks);
+    const loaded = StorageUtil.load('tasks-rt');
+    _expect(loaded.length).toBe(2);
+    loaded.forEach((t, i) => {
+      _expect(t.id).toBe(tasks[i].id);
+      _expect(t.description).toBe(tasks[i].description);
+      _expect(t.complete).toBe(tasks[i].complete);
+    });
+  });
+
+  _it('Link serialization round-trip preserves id, label, url', () => {
+    const links = [
+      { id: 'l1', label: 'GitHub', url: 'https://github.com' },
+      { id: 'l2', label: 'MDN',    url: 'https://developer.mozilla.org' },
+    ];
+    StorageUtil.save('links-rt', links);
+    const loaded = StorageUtil.load('links-rt');
+    _expect(loaded.length).toBe(2);
+    loaded.forEach((l, i) => {
+      _expect(l.id).toBe(links[i].id);
+      _expect(l.label).toBe(links[i].label);
+      _expect(l.url).toBe(links[i].url);
+    });
+  });
+});
+
+// ── 2. GreetingWidget._getGreeting ────────────────────────────────────────────
+_describe('GreetingWidget._getGreeting — all 24 hours', () => {
+  const VALID = new Set(['Good Morning', 'Good Afternoon', 'Good Evening', 'Good Night']);
+
+  _it('all 24 hours return a valid greeting', () => {
+    for (let h = 0; h < 24; h++) {
+      const g = GreetingWidget._getGreeting(h);
+      if (!VALID.has(g)) throw new Error(`Hour ${h} returned unexpected "${g}"`);
+    }
+  });
+
+  _it('hours 5–11 → "Good Morning"', () => {
+    for (let h = 5; h <= 11; h++) {
+      if (GreetingWidget._getGreeting(h) !== 'Good Morning')
+        throw new Error(`Hour ${h} should be "Good Morning"`);
+    }
+  });
+
+  _it('hours 12–17 → "Good Afternoon"', () => {
+    for (let h = 12; h <= 17; h++) {
+      if (GreetingWidget._getGreeting(h) !== 'Good Afternoon')
+        throw new Error(`Hour ${h} should be "Good Afternoon"`);
+    }
+  });
+
+  _it('hours 18–21 → "Good Evening"', () => {
+    for (let h = 18; h <= 21; h++) {
+      if (GreetingWidget._getGreeting(h) !== 'Good Evening')
+        throw new Error(`Hour ${h} should be "Good Evening"`);
+    }
+  });
+
+  _it('hours 22–23 and 0–4 → "Good Night"', () => {
+    [22, 23, 0, 1, 2, 3, 4].forEach(h => {
+      if (GreetingWidget._getGreeting(h) !== 'Good Night')
+        throw new Error(`Hour ${h} should be "Good Night"`);
+    });
+  });
+
+  _it('boundary: hour 5 is Morning, hour 4 is Night', () => {
+    _expect(GreetingWidget._getGreeting(5)).toBe('Good Morning');
+    _expect(GreetingWidget._getGreeting(4)).toBe('Good Night');
+  });
+
+  _it('boundary: hour 12 is Afternoon, hour 11 is Morning', () => {
+    _expect(GreetingWidget._getGreeting(12)).toBe('Good Afternoon');
+    _expect(GreetingWidget._getGreeting(11)).toBe('Good Morning');
+  });
+
+  _it('boundary: hour 18 is Evening, hour 17 is Afternoon', () => {
+    _expect(GreetingWidget._getGreeting(18)).toBe('Good Evening');
+    _expect(GreetingWidget._getGreeting(17)).toBe('Good Afternoon');
+  });
+
+  _it('boundary: hour 22 is Night, hour 21 is Evening', () => {
+    _expect(GreetingWidget._getGreeting(22)).toBe('Good Night');
+    _expect(GreetingWidget._getGreeting(21)).toBe('Good Evening');
+  });
+});
+
+// ── 3. FocusTimerWidget._render ───────────────────────────────────────────────
+_describe('FocusTimerWidget._render — MM:SS format', () => {
+  function fmt(s) {
+    FocusTimerWidget._totalSeconds = s;
+    FocusTimerWidget._render();
+    return document.getElementById('timer-display').textContent;
+  }
+
+  _it('1500 s → "25:00"', () => { _expect(fmt(1500)).toBe('25:00'); });
+  _it('0 s → "00:00"',    () => { _expect(fmt(0)).toBe('00:00');   });
+  _it('90 s → "01:30"',   () => { _expect(fmt(90)).toBe('01:30');  });
+  _it('61 s → "01:01"',   () => { _expect(fmt(61)).toBe('01:01');  });
+  _it('59 s → "00:59"',   () => { _expect(fmt(59)).toBe('00:59');  });
+
+  _it('all values 0–1500 match /^\\d{2}:\\d{2}$/', () => {
+    for (let s = 0; s <= 1500; s++) {
+      const r = fmt(s);
+      if (!/^\d{2}:\d{2}$/.test(r))
+        throw new Error(`${s}s formatted as "${r}", expected MM:SS`);
+    }
+  });
+
+  _it('seconds component never exceeds 59', () => {
+    for (let s = 0; s <= 1500; s++) {
+      const ss = parseInt(fmt(s).split(':')[1], 10);
+      if (ss > 59) throw new Error(`${s}s → seconds=${ss} exceeds 59`);
+    }
+  });
+});
+
+// ── 4. FocusTimerWidget state machine ─────────────────────────────────────────
+_describe('FocusTimerWidget — start / stop / reset / tick', () => {
+  _it('starts at 25:00 (1500 s)', () => {
+    _expect(FocusTimerWidget._totalSeconds).toBe(1500);
+  });
+
+  _it('_stop() sets running=false', () => {
+    FocusTimerWidget._running = true;
+    FocusTimerWidget._stop();
+    _expect(FocusTimerWidget._running).toBe(false);
+  });
+
+  _it('_reset() restores totalSeconds to 1500', () => {
+    FocusTimerWidget._totalSeconds = 300;
+    FocusTimerWidget._reset();
+    _expect(FocusTimerWidget._totalSeconds).toBe(1500);
+  });
+
+  _it('_tick() decrements totalSeconds by 1', () => {
+    FocusTimerWidget._running = true;
+    FocusTimerWidget._intervalId = 999; // dummy so _stop() can clear it
+    FocusTimerWidget._totalSeconds = 100;
+    FocusTimerWidget._tick();
+    _expect(FocusTimerWidget._totalSeconds).toBe(99);
+  });
+
+  _it('_showEndMessage makes end-message visible', () => {
+    FocusTimerWidget._endMessageEl = document.getElementById('timer-end-message');
+    FocusTimerWidget._endMessageEl.hidden = true;
+    FocusTimerWidget._showEndMessage();
+    _expect(FocusTimerWidget._endMessageEl.hidden).toBe(false);
+  });
+
+  _it('_hideEndMessage hides end-message', () => {
+    FocusTimerWidget._endMessageEl = document.getElementById('timer-end-message');
+    FocusTimerWidget._endMessageEl.hidden = false;
+    FocusTimerWidget._hideEndMessage();
+    _expect(FocusTimerWidget._endMessageEl.hidden).toBe(true);
+  });
+});
+
+// ── 5. TodoListWidget._addTask ────────────────────────────────────────────────
+_describe('TodoListWidget._addTask — add and validation', () => {
+  _it('adds a task with complete=false', () => {
+    TodoListWidget._addTask('Buy milk');
+    _expect(TodoListWidget._tasks.length).toBe(1);
+    _expect(TodoListWidget._tasks[0].complete).toBe(false);
+  });
+
+  _it('trims whitespace from description', () => {
+    TodoListWidget._addTask('  trimmed  ');
+    _expect(TodoListWidget._tasks[0].description).toBe('trimmed');
+  });
+
+  _it('each added task gets a unique string id', () => {
+    TodoListWidget._addTask('Task A');
+    TodoListWidget._addTask('Task B');
+    const ids = TodoListWidget._tasks.map(t => t.id);
+    if (ids[0] === ids[1]) throw new Error('IDs are not unique');
+    if (typeof ids[0] !== 'string' || ids[0].length === 0)
+      throw new Error('ID is not a non-empty string');
+  });
+
+  _it('rejects empty string', () => {
+    TodoListWidget._addTask('');
+    _expect(TodoListWidget._tasks.length).toBe(0);
+  });
+
+  _it('rejects whitespace-only string', () => {
+    TodoListWidget._addTask('   ');
+    _expect(TodoListWidget._tasks.length).toBe(0);
+  });
+
+  _it('rejects description > 500 chars', () => {
+    TodoListWidget._addTask('x'.repeat(501));
+    _expect(TodoListWidget._tasks.length).toBe(0);
+  });
+
+  _it('accepts description of exactly 500 chars', () => {
+    TodoListWidget._addTask('x'.repeat(500));
+    _expect(TodoListWidget._tasks.length).toBe(1);
+  });
+
+  _it('clears input field after successful add', () => {
+    TodoListWidget._inputEl.value = 'a task';
+    TodoListWidget._addTask('a task');
+    _expect(TodoListWidget._inputEl.value).toBe('');
+  });
+
+  _it('renders a new <li> in the DOM', () => {
+    TodoListWidget._addTask('Rendered');
+    _expect(document.querySelectorAll('#todo-list li').length).toBe(1);
+  });
+
+  _it('shows error message for empty input', () => {
+    TodoListWidget._addTask('');
+    _expect(document.getElementById('todo-input-error').hidden).toBe(false);
+  });
+
+  _it('clears error message after successful add', () => {
+    TodoListWidget._addTask('');
+    TodoListWidget._addTask('Valid');
+    _expect(document.getElementById('todo-input-error').hidden).toBe(true);
+  });
+
+  _it('persists tasks to localStorage', () => {
+    TodoListWidget._addTask('Persist me');
+    const saved = StorageUtil.load('todo-life-dashboard-tasks');
+    _expect(saved).not.toBeNull();
+    _expect(saved.length).toBe(1);
+    _expect(saved[0].description).toBe('Persist me');
+  });
+});
+
+// ── 6. TodoListWidget._toggleTask ─────────────────────────────────────────────
+_describe('TodoListWidget._toggleTask — completion toggle', () => {
+  function setup() {
+    TodoListWidget._addTask('Toggle me');
+    return TodoListWidget._tasks[0].id;
+  }
+
+  _it('marks incomplete task as complete', () => {
+    const id = setup();
+    TodoListWidget._toggleTask(id);
+    _expect(TodoListWidget._tasks[0].complete).toBe(true);
+  });
+
+  _it('double-toggle restores original false state', () => {
+    const id = setup();
+    TodoListWidget._toggleTask(id);
+    TodoListWidget._toggleTask(id);
+    _expect(TodoListWidget._tasks[0].complete).toBe(false);
+  });
+
+  _it('completed <li> gains .complete class', () => {
+    const id = setup();
+    TodoListWidget._toggleTask(id);
+    _expect(document.querySelector('#todo-list li').classList.contains('complete')).toBe(true);
+  });
+
+  _it('uncompleted <li> loses .complete class', () => {
+    const id = setup();
+    TodoListWidget._toggleTask(id);
+    TodoListWidget._toggleTask(id);
+    _expect(document.querySelector('#todo-list li').classList.contains('complete')).toBe(false);
+  });
+
+  _it('unknown id is a no-op', () => {
+    const id = setup();
+    TodoListWidget._toggleTask('ghost-id');
+    _expect(TodoListWidget._tasks[0].complete).toBe(false);
+  });
+});
+
+// ── 7. TodoListWidget._deleteTask ─────────────────────────────────────────────
+_describe('TodoListWidget._deleteTask — removal', () => {
+  _it('removes task from _tasks', () => {
+    TodoListWidget._addTask('To delete');
+    const id = TodoListWidget._tasks[0].id;
+    TodoListWidget._deleteTask(id);
+    _expect(TodoListWidget._tasks.length).toBe(0);
+  });
+
+  _it('removes <li> from DOM', () => {
+    TodoListWidget._addTask('To delete');
+    const id = TodoListWidget._tasks[0].id;
+    TodoListWidget._deleteTask(id);
+    _expect(document.querySelectorAll('#todo-list li').length).toBe(0);
+  });
+
+  _it('deleted id is absent from _tasks', () => {
+    TodoListWidget._addTask('A');
+    TodoListWidget._addTask('B');
+    const idA = TodoListWidget._tasks[0].id;
+    TodoListWidget._deleteTask(idA);
+    if (TodoListWidget._tasks.find(t => t.id === idA))
+      throw new Error('Deleted task still present');
+    _expect(TodoListWidget._tasks.length).toBe(1);
+  });
+
+  _it('other tasks are unaffected', () => {
+    TodoListWidget._addTask('Keep');
+    TodoListWidget._addTask('Delete me');
+    const idDel = TodoListWidget._tasks[1].id;
+    TodoListWidget._deleteTask(idDel);
+    _expect(TodoListWidget._tasks[0].description).toBe('Keep');
+  });
+});
+
+// ── 8. QuickLinksWidget._addLink validation ────────────────────────────────────
+_describe('QuickLinksWidget._addLink — invalid submissions rejected', () => {
+  _it('empty label rejected', () => {
+    QuickLinksWidget._addLink('', 'https://example.com');
+    _expect(QuickLinksWidget._links.length).toBe(0);
+  });
+
+  _it('whitespace-only label rejected', () => {
+    QuickLinksWidget._addLink('   ', 'https://example.com');
+    _expect(QuickLinksWidget._links.length).toBe(0);
+  });
+
+  _it('empty URL rejected', () => {
+    QuickLinksWidget._addLink('Label', '');
+    _expect(QuickLinksWidget._links.length).toBe(0);
+  });
+
+  _it('URL without http:// or https:// rejected', () => {
+    QuickLinksWidget._addLink('Label', 'ftp://example.com');
+    _expect(QuickLinksWidget._links.length).toBe(0);
+  });
+
+  _it('plain domain rejected', () => {
+    QuickLinksWidget._addLink('Label', 'example.com');
+    _expect(QuickLinksWidget._links.length).toBe(0);
+  });
+
+  _it('invalid submission shows form error', () => {
+    QuickLinksWidget._addLink('', 'https://example.com');
+    _expect(document.getElementById('link-form-error').hidden).toBe(false);
+  });
+});
+
+_describe('QuickLinksWidget._addLink — valid submissions accepted', () => {
+  _it('http:// URL accepted', () => {
+    QuickLinksWidget._addLink('HTTP Site', 'http://example.com');
+    _expect(QuickLinksWidget._links.length).toBe(1);
+  });
+
+  _it('https:// URL accepted', () => {
+    QuickLinksWidget._addLink('GitHub', 'https://github.com');
+    _expect(QuickLinksWidget._links[0].label).toBe('GitHub');
+  });
+
+  _it('renders anchor with target="_blank"', () => {
+    QuickLinksWidget._addLink('MDN', 'https://developer.mozilla.org');
+    const a = document.querySelector('#links-list a');
+    _expect(a).not.toBeNull();
+    _expect(a.target).toBe('_blank');
+  });
+
+  _it('clears inputs after successful add', () => {
+    QuickLinksWidget._labelInputEl.value = 'GitHub';
+    QuickLinksWidget._urlInputEl.value   = 'https://github.com';
+    QuickLinksWidget._addLink('GitHub', 'https://github.com');
+    _expect(QuickLinksWidget._labelInputEl.value).toBe('');
+    _expect(QuickLinksWidget._urlInputEl.value).toBe('');
+  });
+
+  _it('persists links to localStorage', () => {
+    QuickLinksWidget._addLink('GitHub', 'https://github.com');
+    const saved = StorageUtil.load('todo-life-dashboard-links');
+    _expect(saved).not.toBeNull();
+    _expect(saved[0].label).toBe('GitHub');
+  });
+});
+
+_describe('QuickLinksWidget._deleteLink', () => {
+  _it('removes link from _links', () => {
+    QuickLinksWidget._addLink('Site', 'https://example.com');
+    const id = QuickLinksWidget._links[0].id;
+    QuickLinksWidget._deleteLink(id);
+    _expect(QuickLinksWidget._links.length).toBe(0);
+  });
+
+  _it('removes rendered element from DOM', () => {
+    QuickLinksWidget._addLink('Site', 'https://example.com');
+    const id = QuickLinksWidget._links[0].id;
+    QuickLinksWidget._deleteLink(id);
+    _expect(document.querySelectorAll('#links-list .link-item').length).toBe(0);
+  });
+});
+
+// ── 9. Integration: init() with seeded localStorage ───────────────────────────
+_describe('Integration — init() with seeded localStorage', () => {
+  _it('TodoListWidget.init() renders seeded tasks', () => {
+    const tasks = [{ id: 'seed1', description: 'Seeded task', complete: false }];
+    StorageUtil.save('todo-life-dashboard-tasks', tasks);
+    TodoListWidget.init();
+    const items = document.querySelectorAll('#todo-list li');
+    _expect(items.length).toBe(1);
+    _expect(items[0].textContent).toContain('Seeded task');
+  });
+
+  _it('TodoListWidget.init() renders empty list for empty localStorage', () => {
+    TodoListWidget.init();
+    _expect(document.querySelectorAll('#todo-list li').length).toBe(0);
+  });
+
+  _it('QuickLinksWidget.init() renders seeded links', () => {
+    const links = [{ id: 'lseed1', label: 'GitHub', url: 'https://github.com' }];
+    StorageUtil.save('todo-life-dashboard-links', links);
+    QuickLinksWidget.init();
+    const anchors = document.querySelectorAll('#links-list a');
+    _expect(anchors.length).toBe(1);
+    _expect(anchors[0].textContent).toBe('GitHub');
+  });
+
+  _it('TodoListWidget.init() handles malformed localStorage gracefully', () => {
+    localStorage.setItem('todo-life-dashboard-tasks', '{broken json}');
+    let threw = false;
+    try { TodoListWidget.init(); } catch(e) { threw = true; }
+    _expect(threw).toBe(false);
+    _expect(document.querySelectorAll('#todo-list li').length).toBe(0);
+  });
+});
+</script>
+
+<!-- ── Run tests after DOM is ready ─────────────────────────────────────── -->
+<script>
+  Runner.run();
+</script>
+
+</body>
+</html>

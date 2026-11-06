@@ -1,0 +1,341 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Create the directory structure and base files": [
+      {
+        "executionId": "8ae5f9d1-e864-4c97-b8ed-c0dc123b83d3",
+        "chatSessionId": "sess_d2d6b618-93fa-46b2-8c1d-6c7e1e5f8bd5",
+        "timestamp": 1793964087978
+      },
+      {
+        "executionId": "8ae5f9d1-e864-4c97-b8ed-c0dc123b83d3",
+        "chatSessionId": "sess_d2d6b618-93fa-46b2-8c1d-6c7e1e5f8bd5",
+        "timestamp": 1793964127017
+      }
+    ],
+    "1. Project scaffolding": [
+      {
+        "executionId": "8ae5f9d1-e864-4c97-b8ed-c0dc123b83d3",
+        "chatSessionId": "sess_d2d6b618-93fa-46b2-8c1d-6c7e1e5f8bd5",
+        "timestamp": 1793964127970
+      }
+    ],
+    "2.1 Implement `StorageUtil` and `generateId` in `js/app.js`": [
+      {
+        "executionId": "092694df-d21c-4418-8f23-b9cabe3db1bf",
+        "chatSessionId": "sess_51e1548f-9a7e-4de1-9c2f-48514e6e1456",
+        "timestamp": 1793964179347
+      },
+      {
+        "executionId": "092694df-d21c-4418-8f23-b9cabe3db1bf",
+        "chatSessionId": "sess_51e1548f-9a7e-4de1-9c2f-48514e6e1456",
+        "timestamp": 1793964214878
+      }
+    ],
+    "2. Shared utilities": [
+      {
+        "executionId": "092694df-d21c-4418-8f23-b9cabe3db1bf",
+        "chatSessionId": "sess_51e1548f-9a7e-4de1-9c2f-48514e6e1456",
+        "timestamp": 1793964215739
+      }
+    ],
+    "3.1 Implement `GreetingWidget` in `js/app.js`": [
+      {
+        "executionId": "29712e0c-d10d-4cab-a822-4380f007f0f5",
+        "chatSessionId": "sess_d08f18b3-62b6-4a20-95b1-b54f1298d14b",
+        "timestamp": 1793964274585
+      },
+      {
+        "executionId": "29712e0c-d10d-4cab-a822-4380f007f0f5",
+        "chatSessionId": "sess_d08f18b3-62b6-4a20-95b1-b54f1298d14b",
+        "timestamp": 1793964321286
+      }
+    ],
+    "3. GreetingWidget": [
+      {
+        "executionId": "29712e0c-d10d-4cab-a822-4380f007f0f5",
+        "chatSessionId": "sess_d08f18b3-62b6-4a20-95b1-b54f1298d14b",
+        "timestamp": 1793964322468
+      }
+    ],
+    "4.1 Implement `FocusTimerWidget` in `js/app.js`": [
+      {
+        "executionId": "d668820a-0738-4dac-af0d-57f39d7c9a07",
+        "chatSessionId": "sess_fedd371a-682f-4681-bd64-ae7c6ce0e1ef",
+        "timestamp": 1793964362740
+      },
+      {
+        "executionId": "d668820a-0738-4dac-af0d-57f39d7c9a07",
+        "chatSessionId": "sess_fedd371a-682f-4681-bd64-ae7c6ce0e1ef",
+        "timestamp": 1793964483581
+      }
+    ],
+    "4. FocusTimerWidget": [
+      {
+        "executionId": "d668820a-0738-4dac-af0d-57f39d7c9a07",
+        "chatSessionId": "sess_fedd371a-682f-4681-bd64-ae7c6ce0e1ef",
+        "timestamp": 1793964484646
+      }
+    ],
+    "5. Checkpoint — verify utilities and timer": [
+      {
+        "executionId": "aa5731bf-2d53-4f00-864e-cd4eb3f4eecd",
+        "chatSessionId": "sess_68f1ef86-d0a0-45ea-a2e6-7818141b06b4",
+        "timestamp": 1793964547973
+      },
+      {
+        "executionId": "aa5731bf-2d53-4f00-864e-cd4eb3f4eecd",
+        "chatSessionId": "sess_68f1ef86-d0a0-45ea-a2e6-7818141b06b4",
+        "timestamp": 1793964647984
+      }
+    ],
+    "6.1 Implement `TodoListWidget` core (add, render) in `js/app.js`": [
+      {
+        "executionId": "c71176df-6aff-4518-8cb0-28cbda55f342",
+        "chatSessionId": "sess_afeda356-93b1-4d61-a03a-c7f01ea349ed",
+        "timestamp": 1793964676249
+      },
+      {
+        "executionId": "c71176df-6aff-4518-8cb0-28cbda55f342",
+        "chatSessionId": "sess_afeda356-93b1-4d61-a03a-c7f01ea349ed",
+        "timestamp": 1793964763677
+      }
+    ],
+    "6.2 Implement `TodoListWidget` edit mode": [
+      {
+        "executionId": "c71176df-6aff-4518-8cb0-28cbda55f342",
+        "chatSessionId": "sess_afeda356-93b1-4d61-a03a-c7f01ea349ed",
+        "timestamp": 1793964768125
+      },
+      {
+        "executionId": "c71176df-6aff-4518-8cb0-28cbda55f342",
+        "chatSessionId": "sess_afeda356-93b1-4d61-a03a-c7f01ea349ed",
+        "timestamp": 1793965206006
+      }
+    ],
+    "6.3 Implement `TodoListWidget` toggle and delete": [
+      {
+        "executionId": "c71176df-6aff-4518-8cb0-28cbda55f342",
+        "chatSessionId": "sess_afeda356-93b1-4d61-a03a-c7f01ea349ed",
+        "timestamp": 1793964773432
+      },
+      {
+        "executionId": "c71176df-6aff-4518-8cb0-28cbda55f342",
+        "chatSessionId": "sess_afeda356-93b1-4d61-a03a-c7f01ea349ed",
+        "timestamp": 1793965210627
+      }
+    ],
+    "6. TodoListWidget": [
+      {
+        "executionId": "c71176df-6aff-4518-8cb0-28cbda55f342",
+        "chatSessionId": "sess_afeda356-93b1-4d61-a03a-c7f01ea349ed",
+        "timestamp": 1793965211300
+      }
+    ],
+    "7.1 Implement `QuickLinksWidget` in `js/app.js`": [
+      {
+        "executionId": "9eac25dd-e0d5-457c-aa3d-83ab38652412",
+        "chatSessionId": "sess_0ba54ec5-aa82-4ce0-aefb-2f13f67a96b6",
+        "timestamp": 1793965249839
+      },
+      {
+        "executionId": "9eac25dd-e0d5-457c-aa3d-83ab38652412",
+        "chatSessionId": "sess_0ba54ec5-aa82-4ce0-aefb-2f13f67a96b6",
+        "timestamp": 1793965321529
+      }
+    ],
+    "7. QuickLinksWidget": [
+      {
+        "executionId": "9eac25dd-e0d5-457c-aa3d-83ab38652412",
+        "chatSessionId": "sess_0ba54ec5-aa82-4ce0-aefb-2f13f67a96b6",
+        "timestamp": 1793965321901
+      }
+    ],
+    "8.1 Implement responsive grid layout in `css/style.css`": [
+      {
+        "executionId": "9a744f85-2779-4b64-a565-cc06040e3e08",
+        "chatSessionId": "sess_f554a197-3458-4b35-afb8-33cdc326fccf",
+        "timestamp": 1793965357513
+      },
+      {
+        "executionId": "9a744f85-2779-4b64-a565-cc06040e3e08",
+        "chatSessionId": "sess_f554a197-3458-4b35-afb8-33cdc326fccf",
+        "timestamp": 1793965391242
+      }
+    ],
+    "8.2 Implement visual design in `css/style.css`": [
+      {
+        "executionId": "9a744f85-2779-4b64-a565-cc06040e3e08",
+        "chatSessionId": "sess_f554a197-3458-4b35-afb8-33cdc326fccf",
+        "timestamp": 1793965395322
+      },
+      {
+        "executionId": "9a744f85-2779-4b64-a565-cc06040e3e08",
+        "chatSessionId": "sess_f554a197-3458-4b35-afb8-33cdc326fccf",
+        "timestamp": 1793965447818
+      }
+    ],
+    "8. Responsive layout and visual design": [
+      {
+        "executionId": "9a744f85-2779-4b64-a565-cc06040e3e08",
+        "chatSessionId": "sess_f554a197-3458-4b35-afb8-33cdc326fccf",
+        "timestamp": 1793965448643
+      }
+    ],
+    "9.1 Add ARIA attributes and focus management": [
+      {
+        "executionId": "1e300f15-381a-422c-9f2c-68aca08530f7",
+        "chatSessionId": "sess_fbfb9f79-247f-4f75-b8f8-1c15d7d9d7ad",
+        "timestamp": 1793965561078
+      },
+      {
+        "executionId": "1e300f15-381a-422c-9f2c-68aca08530f7",
+        "chatSessionId": "sess_fbfb9f79-247f-4f75-b8f8-1c15d7d9d7ad",
+        "timestamp": 1793965620306
+      }
+    ],
+    "9. Accessibility": [
+      {
+        "executionId": "1e300f15-381a-422c-9f2c-68aca08530f7",
+        "chatSessionId": "sess_fbfb9f79-247f-4f75-b8f8-1c15d7d9d7ad",
+        "timestamp": 1793965621040
+      }
+    ],
+    "10.1 Wire all widget `init()` calls in `js/app.js`": [
+      {
+        "executionId": "ec575fc9-2a23-4c0f-9115-e1e8c2041fd0",
+        "chatSessionId": "sess_a806e8ca-41db-4db7-be70-aeb8cefa7f2e",
+        "timestamp": 1793965655225
+      },
+      {
+        "executionId": "ec575fc9-2a23-4c0f-9115-e1e8c2041fd0",
+        "chatSessionId": "sess_a806e8ca-41db-4db7-be70-aeb8cefa7f2e",
+        "timestamp": 1793965674964
+      }
+    ],
+    "10. App wiring and integration": [
+      {
+        "executionId": "ec575fc9-2a23-4c0f-9115-e1e8c2041fd0",
+        "chatSessionId": "sess_a806e8ca-41db-4db7-be70-aeb8cefa7f2e",
+        "timestamp": 1793965675599
+      }
+    ],
+    "11. Final checkpoint — ensure all tests pass": [
+      {
+        "executionId": "37b75bf8-061c-4011-af33-897d6ccaaf8d",
+        "chatSessionId": "sess_6a061232-f634-4c71-bb28-16ebe135e082",
+        "timestamp": 1793966651678
+      },
+      {
+        "executionId": "37b75bf8-061c-4011-af33-897d6ccaaf8d",
+        "chatSessionId": "sess_6a061232-f634-4c71-bb28-16ebe135e082",
+        "timestamp": 1793974639558
+      }
+    ],
+    "12.1 Add `#theme-toggle` button to `index.html` in the dashboard header area": [
+      {
+        "executionId": "ed16286b-23a0-45a9-8166-d8b64e06effb",
+        "chatSessionId": "sess_e40f42a5-0a30-4779-9d86-3abaae807449",
+        "timestamp": 1793975270472
+      },
+      {
+        "executionId": "ed16286b-23a0-45a9-8166-d8b64e06effb",
+        "chatSessionId": "sess_e40f42a5-0a30-4779-9d86-3abaae807449",
+        "timestamp": 1793975302135
+      }
+    ],
+    "12.2 Add CSS custom properties for light and dark themes in `css/style.css`": [
+      {
+        "executionId": "ed16286b-23a0-45a9-8166-d8b64e06effb",
+        "chatSessionId": "sess_e40f42a5-0a30-4779-9d86-3abaae807449",
+        "timestamp": 1793975307915
+      },
+      {
+        "executionId": "ed16286b-23a0-45a9-8166-d8b64e06effb",
+        "chatSessionId": "sess_e40f42a5-0a30-4779-9d86-3abaae807449",
+        "timestamp": 1793975386824
+      }
+    ],
+    "12.3 Implement `ThemeWidget` in `js/app.js`": [
+      {
+        "executionId": "ed16286b-23a0-45a9-8166-d8b64e06effb",
+        "chatSessionId": "sess_e40f42a5-0a30-4779-9d86-3abaae807449",
+        "timestamp": 1793975694511
+      },
+      {
+        "executionId": "ed16286b-23a0-45a9-8166-d8b64e06effb",
+        "chatSessionId": "sess_e40f42a5-0a30-4779-9d86-3abaae807449",
+        "timestamp": 1793975863194
+      }
+    ],
+    "12. Theme toggle": [
+      {
+        "executionId": "ed16286b-23a0-45a9-8166-d8b64e06effb",
+        "chatSessionId": "sess_e40f42a5-0a30-4779-9d86-3abaae807449",
+        "timestamp": 1793975864241
+      }
+    ],
+    "13.1 Add name-edit UI elements to `index.html` inside `#greeting-widget`": [
+      {
+        "executionId": "e33b8d4b-77b8-4af8-87cb-c824819e637e",
+        "chatSessionId": "sess_913df47c-d1a6-4a05-8bb7-f7109ac4ad8a",
+        "timestamp": 1793975981611
+      },
+      {
+        "executionId": "e33b8d4b-77b8-4af8-87cb-c824819e637e",
+        "chatSessionId": "sess_913df47c-d1a6-4a05-8bb7-f7109ac4ad8a",
+        "timestamp": 1793976024074
+      }
+    ],
+    "13.2 Implement `UserNameWidget` in `js/app.js`": [
+      {
+        "executionId": "e33b8d4b-77b8-4af8-87cb-c824819e637e",
+        "chatSessionId": "sess_913df47c-d1a6-4a05-8bb7-f7109ac4ad8a",
+        "timestamp": 1793976029891
+      },
+      {
+        "executionId": "e33b8d4b-77b8-4af8-87cb-c824819e637e",
+        "chatSessionId": "sess_913df47c-d1a6-4a05-8bb7-f7109ac4ad8a",
+        "timestamp": 1793976152805
+      }
+    ],
+    "13. Custom greeting name": [
+      {
+        "executionId": "e33b8d4b-77b8-4af8-87cb-c824819e637e",
+        "chatSessionId": "sess_913df47c-d1a6-4a05-8bb7-f7109ac4ad8a",
+        "timestamp": 1793976154039
+      }
+    ],
+    "14.1 Add `_isDuplicate(description, excludeId)` to `TodoListWidget` and integrate into `_addTask` and `_editTask`": [
+      {
+        "executionId": "e75b72df-6fc2-405f-9977-1bec77dbbd72",
+        "chatSessionId": "sess_4b3aa1e4-1752-4d86-9a40-04164e84a0d4",
+        "timestamp": 1793976193667
+      },
+      {
+        "executionId": "e75b72df-6fc2-405f-9977-1bec77dbbd72",
+        "chatSessionId": "sess_4b3aa1e4-1752-4d86-9a40-04164e84a0d4",
+        "timestamp": 1793976265245
+      }
+    ],
+    "14. Duplicate task prevention": [
+      {
+        "executionId": "e75b72df-6fc2-405f-9977-1bec77dbbd72",
+        "chatSessionId": "sess_4b3aa1e4-1752-4d86-9a40-04164e84a0d4",
+        "timestamp": 1793976266439
+      }
+    ],
+    "15. Final checkpoint — ensure all new features work": [
+      {
+        "executionId": "e95e2eda-9d6c-49b4-a935-c35c496fa8d2",
+        "chatSessionId": "sess_9d5ee67a-521d-44cb-91e0-ae6dfb3cdc02",
+        "timestamp": 1793977345035
+      },
+      {
+        "executionId": "e95e2eda-9d6c-49b4-a935-c35c496fa8d2",
+        "chatSessionId": "sess_9d5ee67a-521d-44cb-91e0-ae6dfb3cdc02",
+        "timestamp": 1793977488515
+      }
+    ]
+  }
+}

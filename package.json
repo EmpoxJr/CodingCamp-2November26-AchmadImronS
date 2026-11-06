@@ -1,0 +1,17 @@
+{
+  "name": "todo-life-dashboard",
+  "version": "1.0.0",
+  "description": "To-Do List Life Dashboard — client-side productivity app",
+  "private": true,
+  "scripts": {
+    "test": "jest --testEnvironment jsdom"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "testMatch": ["**/*.test.js"]
+  }
+}
